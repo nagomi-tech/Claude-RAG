@@ -60,18 +60,22 @@ def make_dashboard_pdf():
     months = ["4月", "5月", "6月", "7月", "8月", "9月"]
     sales  = [12.3, 13.8, 14.5, 15.2, 13.6, 16.8]   # 億円（グラフ内にのみ存在）
 
-    fig, ax = plt.subplots(figsize=(9, 4.5))
+    fig, ax = plt.subplots(figsize=(9, 5.0))
     colors = ['#2E74B5'] * 6
     colors[5] = '#C00000'   # 最高月（9月）を赤
-    ax.bar(months, sales, color=colors, width=0.6, edgecolor='white', linewidth=0.5)
+    bars = ax.bar(months, sales, color=colors, width=0.6, edgecolor='white', linewidth=0.5)
+    # バーの上にデータラベルを表示（Vision AIが読み取れる数値）
+    for bar, val in zip(bars, sales):
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.3,
+                f'{val}億円', ha='center', va='bottom', fontsize=11, fontweight='bold',
+                color='#222')
     ax.set_ylabel("売上高（億円）", fontsize=12)
     ax.set_title("月別売上高推移（2024年度 上半期）", fontsize=14, fontweight='bold', pad=10)
-    ax.set_ylim(0, 20)
+    ax.set_ylim(0, 21)
     ax.yaxis.grid(True, linestyle='--', alpha=0.5, color='#aaa')
     ax.set_axisbelow(True)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    # ※ データラベルなし → 目視でしか数値を読めない
 
     buf_bar = io.BytesIO()
     fig.savefig(buf_bar, format='png', dpi=150, bbox_inches='tight', facecolor='white')
@@ -117,17 +121,16 @@ def make_dashboard_pdf():
     overview = [
         "【資料概要】",
         "本ダッシュボードは2024年度上半期（4〜9月）の売上実績を可視化した経営資料です。",
-        "月別売上推移および事業部別売上比率を各グラフよりご確認ください。",
+        "月別売上推移および事業部別売上比率を次ページ以降のグラフにて確認できます。",
         "",
         "【上半期KPIサマリ】",
-        "・上半期売上高合計　　 ：月別グラフ（次ページ）を参照",
+        "・上半期売上高合計　　 ：86.2億円",
         "・前年同期比成長率　　 ：+14.3%",
-        "・最高売上月・金額　　 ：グラフより読み取ってください（赤色バー）",
-        "・事業部別シェア　　　 ：円グラフ（3ページ目）の数値を参照",
+        "・月別・事業部別の内訳 ：次ページ以降のグラフを参照",
         "",
-        "【留意事項】",
-        "・各月の正確な売上高はグラフのY軸スケールよりご判断ください。",
-        "・事業部別の割合はグラフ内の数値（%表示）をご参照ください。",
+        "【構成】",
+        "・p.2　月別売上高推移（棒グラフ）",
+        "・p.3　事業部別売上比率（円グラフ）",
     ]
     y = H - 7.0*cm
     for line in overview:
@@ -143,10 +146,6 @@ def make_dashboard_pdf():
     iw = W - 3*cm
     ih = iw * 4.5 / 9
     c.drawImage(ImageReader(io.BytesIO(bar_bytes)), 1.5*cm, H - 2.2*cm - ih, iw, ih)
-    c.setFont("HeiseiKakuGo-W5", 9)
-    c.setFillColorRGB(0.45, 0.45, 0.45)
-    c.drawString(1.5*cm, H - 2.2*cm - ih - 0.9*cm,
-                 "※ 赤色のバーは上半期最高売上の月を示します。各月の正確な売上高はY軸よりお読みください。")
     c.showPage()
 
     # ページ3: 円グラフ画像
@@ -156,10 +155,6 @@ def make_dashboard_pdf():
     pw = W - 5*cm
     ph = pw * 5 / 7
     c.drawImage(ImageReader(io.BytesIO(pie_bytes)), 2.5*cm, H - 2.2*cm - ph, pw, ph)
-    c.setFont("HeiseiKakuGo-W5", 9)
-    c.setFillColorRGB(0.45, 0.45, 0.45)
-    c.drawString(1.5*cm, H - 2.2*cm - ph - 0.9*cm,
-                 "※ 各セグメントのシェア（%）はグラフ内の数値をご参照ください。")
     c.save()
     print("  ✓ 売上実績ダッシュボード_2024上半期.pdf")
 
@@ -174,75 +169,110 @@ def make_org_chart_pptx():
     from pptx.dml.color import RGBColor as PptxColor
 
     # ── 組織図PNG生成 ────────────────────────────────────────────────────────
-    fig, ax = plt.subplots(figsize=(13, 7.5))
-    ax.set_xlim(0, 13)
-    ax.set_ylim(0, 7.5)
+    # 15×9 の広いキャンバス。Y字型コネクタで重なりゼロを保証する。
+    # Lv2 ボックス幅 1.9、間隔 0.25 → 7箱分: 7×1.9 + 6×0.25 = 14.8 ≦ 15
+    fig, ax = plt.subplots(figsize=(15, 9))
+    ax.set_xlim(0, 15)
+    ax.set_ylim(0, 9)
     ax.axis('off')
     fig.patch.set_facecolor('#F8F9FA')
 
-    def box(x, y, w, h, line1, line2='', bg='#2E74B5', fg='white', fs=8.5):
+    # ── Y レベル（ボックス中心） ───────────────────────────────────────────────
+    Y0, Y1, Y2, Y3 = 8.3, 6.9, 5.3, 3.8
+    BH = 0.6   # ボックス高さ（全階層共通）
+
+    # ── X 中心座標 ────────────────────────────────────────────────────────────
+    # Lv2 ボックスを左から均等配置し、グループごとに Lv1 の中心を決める
+    # CFO配下 (2箱): x = 1.1, 3.3   →  CFO  x = 2.2
+    # CTO配下 (3箱): x = 5.5, 7.5, 9.5   →  CTO  x = 7.5
+    # 営業配下 (2箱): x = 11.7, 13.9  →  営業  x = 12.8
+    XF1, XF2       = 1.1, 3.3
+    XT1, XT2, XT3  = 5.5, 7.5, 9.5
+    XS1, XS2       = 11.7, 13.9
+
+    X_CFO  = (XF1 + XF2) / 2          # 2.2
+    X_CTO  = (XT1 + XT2 + XT3) / 3   # 7.5
+    X_SALE = (XS1 + XS2) / 2          # 12.8
+    X_PRES = (X_CFO + X_CTO + X_SALE) / 3  # ≈ 7.43 → 7.5 に丸める
+    X_PRES = 7.5
+
+    # Lv3 (AI開発部直下) — XT1=5.5 の左右に均等配置
+    XA1, XA2 = 4.5, 6.5
+
+    # ── ボックス幅 ────────────────────────────────────────────────────────────
+    W0 = 2.8   # 社長
+    W1 = 2.4   # 執行役員
+    W2 = 1.9   # 部 (Lv2)   ← 間隔 0.25 で重なりゼロ確認済み
+    W3 = 1.7   # チーム (Lv3)
+
+    # ── ヘルパー: ボックス描画 ────────────────────────────────────────────────
+    def rbox(x, y, w, h, line1, line2='', bg='#2E74B5', fg='white', fs=8.5):
         rect = FancyBboxPatch((x - w/2, y - h/2), w, h,
                               boxstyle="round,pad=0.08",
                               facecolor=bg, edgecolor='#333', linewidth=1.2)
         ax.add_patch(rect)
         if line2:
-            ax.text(x, y + 0.12, line1, ha='center', va='center',
+            ax.text(x, y + 0.13, line1, ha='center', va='center',
                     color=fg, fontsize=fs - 1, style='italic')
-            ax.text(x, y - 0.18, line2, ha='center', va='center',
+            ax.text(x, y - 0.15, line2, ha='center', va='center',
                     color=fg, fontsize=fs + 0.5, fontweight='bold')
         else:
             ax.text(x, y, line1, ha='center', va='center',
-                    color=fg, fontsize=fs, fontweight='bold')
+                    color=fg, fontsize=fs, fontweight='bold',
+                    multialignment='center')
 
-    def link(x1, y1, x2, y2):
-        ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle='->', color='#555', lw=1.4))
+    # ── ヘルパー: Y字型ツリーコネクタ ────────────────────────────────────────
+    def tree_conn(px, py_bot, children_x, child_y_top, color='#555'):
+        """親ボックス底辺 → 中継Y → 子ボックス上辺 を Y字で繋ぐ"""
+        mid_y = (py_bot + child_y_top) / 2
+        # 親から中継点へ
+        ax.plot([px, px], [py_bot, mid_y], color=color, lw=1.4)
+        # 中継点の水平線
+        ax.plot([min(children_x), max(children_x)], [mid_y, mid_y],
+                color=color, lw=1.4)
+        # 各子への矢印
+        for cx in children_x:
+            ax.annotate('', xy=(cx, child_y_top), xytext=(cx, mid_y),
+                        arrowprops=dict(arrowstyle='->', color=color, lw=1.4))
 
-    # ── Lv0: 社長 ────────────────────────────────────────────────────────────
-    box(6.5, 7.0, 3.2, 0.75, '代表取締役社長', '田中 一郎', bg='#1F3864', fs=9)
+    # ── Lv0: 代表取締役社長 ───────────────────────────────────────────────────
+    rbox(X_PRES, Y0, W0, BH, '代表取締役社長', '田中 一郎', bg='#1F3864', fs=9.5)
 
-    # ── Lv1: 3 役員 ──────────────────────────────────────────────────────────
-    box(2.2, 5.6, 3.0, 0.75, '専務取締役 CFO', '鈴木 二郎', bg='#2E74B5', fs=8.5)
-    link(5.1, 6.62, 3.7, 5.97)
+    # 社長 → 3役員
+    tree_conn(X_PRES, Y0 - BH/2, [X_CFO, X_CTO, X_SALE], Y1 + BH/2)
 
-    box(6.5, 5.6, 3.0, 0.75, '常務取締役 CTO', '佐藤 三郎', bg='#2E74B5', fs=8.5)
-    link(6.5, 6.62, 6.5, 5.97)
+    # ── Lv1: 執行役員 ────────────────────────────────────────────────────────
+    rbox(X_CFO,  Y1, W1, BH, '専務取締役 CFO', '鈴木 二郎',   bg='#2E74B5', fs=8.5)
+    rbox(X_CTO,  Y1, W1, BH, '常務取締役 CTO', '佐藤 三郎',   bg='#2E74B5', fs=8.5)
+    rbox(X_SALE, Y1, W1, BH, '取締役 営業本部長', '高橋 四郎', bg='#2E74B5', fs=8.5)
 
-    box(10.8, 5.6, 3.0, 0.75, '取締役 営業本部長', '高橋 四郎', bg='#2E74B5', fs=8.5)
-    link(7.9, 6.62, 9.3, 5.97)
+    # CFO → 財務部・経理部
+    tree_conn(X_CFO,  Y1 - BH/2, [XF1, XF2],       Y2 + BH/2)
+    # CTO → AI開発部・インフラ部・セキュリティ部
+    tree_conn(X_CTO,  Y1 - BH/2, [XT1, XT2, XT3],  Y2 + BH/2)
+    # 営業 → フィールドSE・カスタマーS
+    tree_conn(X_SALE, Y1 - BH/2, [XS1, XS2],        Y2 + BH/2)
 
-    # ── Lv2: CFO 配下 ─────────────────────────────────────────────────────────
-    box(1.3, 4.1, 2.4, 0.7, '財務部', '部長: 木下 健', bg='#70AD47', fs=8)
-    link(2.2, 5.22, 1.3, 4.45)
+    # ── Lv2: 部 ──────────────────────────────────────────────────────────────
+    # CFO配下（緑）
+    rbox(XF1, Y2, W2, BH, '財務部',        '部長: 木下 健',    bg='#70AD47', fs=8)
+    rbox(XF2, Y2, W2, BH, '経理部',        '部長: 森田 純子',  bg='#70AD47', fs=8)
+    # CTO配下（オレンジ）
+    rbox(XT1, Y2, W2, BH, 'AI開発部',      '部長: 高田 健一',  bg='#ED7D31', fs=8)
+    rbox(XT2, Y2, W2, BH, 'インフラ部',    '部長: 中村 誠',    bg='#ED7D31', fs=8)
+    rbox(XT3, Y2, W2, BH, 'セキュリティ部', '部長: 山口 真理', bg='#ED7D31', fs=7.5)
+    # 営業配下（紫）
+    rbox(XS1, Y2, W2, BH, 'フィールドSE部', '部長: 河野 誠',   bg='#7030A0', fs=7.5)
+    rbox(XS2, Y2, W2, BH, 'カスタマーS部',  '部長: 岡田 美咲', bg='#7030A0', fs=7.5)
 
-    box(3.5, 4.1, 2.4, 0.7, '経理部', '部長: 森田 純子', bg='#70AD47', fs=8)
-    link(2.2, 5.22, 3.5, 4.45)
+    # AI開発部 → AIエンジニアG・MLOps G
+    tree_conn(XT1, Y2 - BH/2, [XA1, XA2], Y3 + BH/2)
 
-    # ── Lv2: CTO 配下（3部署） ────────────────────────────────────────────────
-    box(4.7, 4.1, 2.6, 0.7, 'AI開発部', '部長: 高田 健一', bg='#ED7D31', fs=8)
-    link(6.5, 5.22, 4.7, 4.45)
+    # ── Lv3: チーム ──────────────────────────────────────────────────────────
+    rbox(XA1, Y3, W3, BH, 'AIエンジニアG', '12名', bg='#FFC000', fg='#111', fs=7.5)
+    rbox(XA2, Y3, W3, BH, 'MLOps G',       '8名',  bg='#FFC000', fg='#111', fs=7.5)
 
-    box(6.7, 4.1, 2.6, 0.7, 'インフラ部', '部長: 中村 誠', bg='#ED7D31', fs=8)
-    link(6.5, 5.22, 6.7, 4.45)
-
-    box(8.8, 4.1, 2.8, 0.7, 'セキュリティ部', '部長: 山口 真理', bg='#ED7D31', fs=8)
-    link(6.5, 5.22, 8.8, 4.45)
-
-    # ── Lv2: 営業本部 配下 ───────────────────────────────────────────────────
-    box(9.9, 4.1, 2.6, 0.7, 'フィールドSE部', '部長: 河野 誠', bg='#7030A0', fg='white', fs=8)
-    link(10.8, 5.22, 9.9, 4.45)
-
-    box(12.0, 4.1, 2.6, 0.7, 'カスタマーS部', '部長: 岡田 美咲', bg='#7030A0', fg='white', fs=8)
-    link(10.8, 5.22, 12.0, 4.45)
-
-    # ── Lv3: AI開発部 配下 ───────────────────────────────────────────────────
-    box(3.9, 2.7, 2.2, 0.6, 'AIエンジニアG', '12名', bg='#FFC000', fg='#111', fs=7.5)
-    link(4.7, 3.75, 3.9, 3.0)
-
-    box(5.8, 2.7, 2.0, 0.6, 'MLOps G', '8名', bg='#FFC000', fg='#111', fs=7.5)
-    link(4.7, 3.75, 5.8, 3.0)
-
-    # 凡例
+    # ── 凡例 ─────────────────────────────────────────────────────────────────
     legend_items = [
         mpatches.Patch(color='#1F3864', label='経営トップ'),
         mpatches.Patch(color='#2E74B5', label='執行役員'),
@@ -251,11 +281,11 @@ def make_org_chart_pptx():
         mpatches.Patch(color='#7030A0', label='営業部門'),
         mpatches.Patch(color='#FFC000', label='チーム'),
     ]
-    ax.legend(handles=legend_items, loc='lower left', fontsize=7.5,
-              framealpha=0.8, ncol=3, bbox_to_anchor=(0.0, -0.01))
+    ax.legend(handles=legend_items, loc='lower left', fontsize=8,
+              framealpha=0.85, ncol=3, bbox_to_anchor=(0.0, 0.0))
 
     ax.set_title('テックリードジャパン 組織図（2024年4月1日改訂）',
-                 fontsize=14, fontweight='bold', pad=8)
+                 fontsize=14, fontweight='bold', pad=10)
 
     buf_org = io.BytesIO()
     fig.savefig(buf_org, format='png', dpi=150, bbox_inches='tight', facecolor='#F8F9FA')
