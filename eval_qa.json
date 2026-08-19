@@ -5,7 +5,9 @@
     "expected_answer": "4件の議案が承認されました。全会一致ではなかったのは第2号議案「2024年度事業計画・予算の承認」で、賛成7名・反対0名・棄権1名で承認されました。",
     "source": "取締役会議事録_2024年3月期.docx",
     "category": "事実確認",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 2,
@@ -13,15 +15,19 @@
     "expected_answer": "資本金3億円、従業員数50名（初年度）で、2024年7月に設立予定です。AI技術開発を専業とする完全子会社として設立されます。",
     "source": "取締役会議事録_2024年3月期.docx",
     "category": "事実確認",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 3,
     "question": "受注処理業務マニュアルにおいて、AI与信審査システムで「担当者確認」が必要となるスコアの範囲と対応期限を教えてください。",
-    "expected_answer": "スコア60〜69点が「担当者確認」の区分です。営業担当者が顧客情報を確認後に判断し、対応期限は当日中です。なお第5版ではSTEP2の説明でスコア50〜69点を担当者確認としている記述もあります。",
+    "expected_answer": "スコア60〜69点が「担当者確認」の区分です。営業担当者が顧客情報を確認後に判断し、対応期限は当日中です。",
     "source": "業務マニュアル_受注処理フロー_第5版.docx",
     "category": "業務知識",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 4,
@@ -29,7 +35,9 @@
     "expected_answer": "与信OK・在庫確認完了後、顧客へ受注確認書をメール送付します（自動送信）。",
     "source": "業務マニュアル_受注処理フロー_第5版.docx",
     "category": "業務知識",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 5,
@@ -37,7 +45,9 @@
     "expected_answer": "ソフトウェアエンジニア（バックエンド）、AIエンジニア・MLエンジニア、法人営業（フィールドセールス）の3職種が優先度★★★です。",
     "source": "2024年度採用計画書.docx",
     "category": "人事・採用",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 6,
@@ -45,7 +55,9 @@
     "expected_answer": "リファラル採用の予算は500万円、目標採用数は10名、1人当たり採用単価は50万円です。",
     "source": "2024年度採用計画書.docx",
     "category": "人事・採用",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 7,
@@ -53,7 +65,9 @@
     "expected_answer": "売上高は35.2億円（前年同期比+12.4%、目標比+2.1%）、営業利益は4.8億円（+18.7%、目標比+0.8%）、受注高は41.5億円（+9.2%、目標比+3.5%）です。",
     "source": "2024年Q1事業実績報告書.pptx",
     "category": "財務・業績",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 8,
@@ -61,7 +75,9 @@
     "expected_answer": "新規事業が最も高く、前年Q1比+183.3%（0.6億円→1.7億円）です。",
     "source": "2024年Q1事業実績報告書.pptx",
     "category": "財務・業績",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 9,
@@ -69,7 +85,9 @@
     "expected_answer": "β版は2024年10月、正式リリースは2025年1月が目標です。月額価格は180,000円からで、ユーザー数・機能に応じて変動します。",
     "source": "新製品企画提案書_SalesAI_Pro.pptx",
     "category": "製品情報",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 10,
@@ -77,7 +95,9 @@
     "expected_answer": "①営業生産性の低下（非商談業務に週30時間以上）、②顧客情報の分散（複数ツールへの散在）、③予測精度の低さ（勘に依存した受注予測）、④育成コストの増大（一人前化に平均18ヶ月）の4点です。",
     "source": "新製品企画提案書_SalesAI_Pro.pptx",
     "category": "製品情報",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 11,
@@ -85,7 +105,9 @@
     "expected_answer": "3ヵ年合計の投資額は19.8億円です。最も投資額が大きいのはERP刷新で、2024年度3.5億円・2025年度4.2億円・2026年度1.0億円の計8.7億円を占めます。",
     "source": "IT基盤整備中期計画_2024-2026.pptx",
     "category": "IT戦略",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 12,
@@ -93,7 +115,9 @@
     "expected_answer": "①2008年導入のオンプレERPが2026年以降サポート終了予定（老朽化）、②部門ごとにExcelと個別システムが乱立しデータサイロが深刻化、③ゼロトラスト未対応のネットワーク構成によるセキュリティリスク増大、④手動デプロイ・テストによる開発・運用の非効率（年間リリース回数が競合比約1/5）の4点が挙げられています。",
     "source": "IT基盤整備中期計画_2024-2026.pptx",
     "category": "IT戦略",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 13,
@@ -101,7 +125,9 @@
     "expected_answer": "1位は株式会社グローバルテックで、上半期（4〜9月）の売上高は2,840百万円（28.4億円）です。主要商品はProSeries X / サポートパックで、前年比+18.2%の成長を記録しています。",
     "source": "月次売上実績表_2024年度.xlsx",
     "category": "財務・業績",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 14,
@@ -109,7 +135,9 @@
     "expected_answer": "2社あります。株式会社マーケットリーダーが前年比-2.4%（1,750百万円）、中央コンサルティング株式会社が前年比-8.7%（760百万円）です。",
     "source": "月次売上実績表_2024年度.xlsx",
     "category": "財務・業績",
-    "difficulty": "難"
+    "difficulty": "難",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 15,
@@ -117,7 +145,9 @@
     "expected_answer": "プロジェクトマネージャーは佐藤 太郎氏です。プロジェクト期間は2024年4月〜2026年3月の約2年間です。",
     "source": "プロジェクト工程管理表_ERP刷新PJ.xlsx",
     "category": "プロジェクト管理",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 16,
@@ -125,7 +155,9 @@
     "expected_answer": "「ユーザー教育の遅れ」と「カスタマイズの過多」が発生確率「高」・影響度「中」でリスクスコア12です。対応策はそれぞれ「e-ラーニング導入・部門ごとのトレーナー任命」と「Fit/Gap分析でカスタマイズを最小化方針の徹底」です。",
     "source": "プロジェクト工程管理表_ERP刷新PJ.xlsx",
     "category": "プロジェクト管理",
-    "difficulty": "難"
+    "difficulty": "難",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 17,
@@ -133,15 +165,19 @@
     "expected_answer": "2005年（平成17年）4月1日設立。資本金は5億円。従業員数は850名（2024年4月1日現在、連結）。本社所在地は〒100-0001 東京都千代田区丸の内2-1-1 テックビル15Fです。",
     "source": "会社概要_株式会社テックリードジャパン.pdf",
     "category": "会社情報",
-    "difficulty": "易"
+    "difficulty": "易",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 18,
     "question": "テックリードジャパンの2024年3月期における事業部門別の売上高を教えてください。どの部門が最も成長していますか？",
-    "expected_answer": "ITソリューション事業84.0億円（+10.5%）、AIサービス事業28.0億円（+35.2%）、保守サポート事業21.0億円（+3.1%）、新規事業7.0億円（+165%）です。成長率が最も高いのは新規事業の+165%ですが、絶対額最大はITソリューション事業です。",
+    "expected_answer": "ITソリューション事業84.0億円（+10.5%）、AIサービス事業28.0億円（+35.2%）、保守サポート事業21.0億円（+3.1%）、新規事業7.0億円（+165%）です。成長率が最も高いのは新規事業の+165%です。",
     "source": "会社概要_株式会社テックリードジャパン.pdf",
     "category": "会社情報",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 19,
@@ -149,7 +185,9 @@
     "expected_answer": "2024年春のCSATは82.4%で、前回（2023年秋）の79.8%から+2.6ポイント改善しました。業界平均の74.2%を8.2ポイント上回っており、目標値の80.0%も超達成しています。",
     "source": "顧客満足度調査報告書_2024年春.pdf",
     "category": "顧客満足度",
-    "difficulty": "中"
+    "difficulty": "中",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
   },
   {
     "id": 20,
@@ -157,6 +195,81 @@
     "expected_answer": "重要度「高」は3件です。①モバイルアプリUX（UI/UXリニューアルv3.2、プロダクト部、2024年9月）、②APIドキュメント遅延（ドキュメントチーム専任1名増員、技術部、2024年7月）、③障害情報提供の遅れ（ステータスページ自動更新化、SRE部、2024年8月）です。",
     "source": "顧客満足度調査報告書_2024年春.pdf",
     "category": "顧客満足度",
-    "difficulty": "難"
+    "difficulty": "難",
+    "element_type": "本文テキスト",
+    "currently_answerable": true
+  },
+
+  {
+    "id": 21,
+    "question": "取締役会議事録の冒頭にある基本情報テーブルに記載されている「議長名」と「記録者名・所属」を教えてください。",
+    "expected_answer": "議長は代表取締役社長の田中 一郎氏、記録者は総務部の山田 花子氏です。",
+    "source": "取締役会議事録_2024年3月期.docx",
+    "category": "事実確認",
+    "difficulty": "易",
+    "element_type": "DOCX結合テーブル",
+    "currently_answerable": false,
+    "why_not_answerable": "ingest.pyはdoc.paragraphsのみを読み込んでおり、doc.tablesのセル内テキストを取得していないため。議長名・記録者はテーブルセル内に記載されている。",
+    "improvement_needed": "load_docx()にdoc.tablesのセル読み込みを追加する"
+  },
+  {
+    "id": 22,
+    "question": "業務マニュアルの与信審査基準表において、「上長承認」と「受注停止」それぞれの判定スコア範囲・処理方法・対応期限を教えてください。",
+    "expected_answer": "上長承認：スコア50〜59点、部長クラスの承認が必要、対応期限は翌営業日まで。受注停止：スコア0〜29点、受注不可で顧客へ理由を説明し代替案を提示、対応期限は即時連絡。",
+    "source": "業務マニュアル_受注処理フロー_第5版.docx",
+    "category": "業務知識",
+    "difficulty": "中",
+    "element_type": "DOCX結合テーブル",
+    "currently_answerable": false,
+    "why_not_answerable": "与信審査基準表はDOCXのdoc.tablesとして作成されており、現在のload_docx()では取得されない。",
+    "improvement_needed": "load_docx()にdoc.tablesのセル読み込みを追加する"
+  },
+  {
+    "id": 23,
+    "question": "採用計画書の採用チャネル別コスト計画表において、中途エンジニア向け人材紹介の予算・目標採用数・1人当たり採用単価を教えてください。",
+    "expected_answer": "中途エンジニア向け人材紹介の予算は6,000万円、目標採用数は30名、1人当たり採用単価は200万円です。",
+    "source": "2024年度採用計画書.docx",
+    "category": "人事・採用",
+    "difficulty": "易",
+    "element_type": "DOCX結合テーブル",
+    "currently_answerable": false,
+    "why_not_answerable": "採用チャネル別コスト計画はDOCXのdoc.tablesとして作成されており、現在のload_docx()では取得されない。",
+    "improvement_needed": "load_docx()にdoc.tablesのセル読み込みを追加する"
+  },
+  {
+    "id": 24,
+    "question": "2024年Q1事業実績報告書の月次売上棒グラフに示されている4月・5月・6月それぞれの売上高（億円）を教えてください。",
+    "expected_answer": "4月は10.8億円、5月は11.5億円、6月は12.9億円です。",
+    "source": "2024年Q1事業実績報告書.pptx",
+    "category": "財務・業績",
+    "difficulty": "易",
+    "element_type": "PPTXグラフ（棒グラフ）",
+    "currently_answerable": false,
+    "why_not_answerable": "PPTXのChartオブジェクトのデータ値はXML内のc:ser/c:val要素に格納されており、shape.textでは取得されない。グラフのタイトルのみ取得可能。",
+    "improvement_needed": "load_pptx()でshape.chart_type判定後、chart.plots[0].series からデータ値を抽出する処理を追加する"
+  },
+  {
+    "id": 25,
+    "question": "IT基盤整備中期計画の投資計画グラフ（積み上げ棒グラフ）で、2025年度のDX・AI基盤投資額（億円）はいくらですか？",
+    "expected_answer": "2025年度のDX・AI基盤投資額は1.5億円です。",
+    "source": "IT基盤整備中期計画_2024-2026.pptx",
+    "category": "IT戦略",
+    "difficulty": "易",
+    "element_type": "PPTXグラフ（積み上げ棒グラフ）",
+    "currently_answerable": false,
+    "why_not_answerable": "PPTXの積み上げ棒グラフのシリーズデータはshape.textに含まれない。グラフタイトルと凡例テキストは取得できるが、数値データは取得不可。",
+    "improvement_needed": "load_pptx()でChartオブジェクトからシリーズデータを抽出する処理を追加する"
+  },
+  {
+    "id": 26,
+    "question": "プロジェクト工程管理表のガントチャートで、セルの色が「緑色（完了）」で塗られているタスク（WBS番号とタスク名）をすべて教えてください。",
+    "expected_answer": "緑色（完了）になっているのはWBS 1「現状業務分析・要件定義」、WBS 1.1「AS-ISプロセスマッピング」、WBS 1.2「TO-BE要件定義書作成」、WBS 2.1「RFP作成・送付（5社）」の4タスクです。",
+    "source": "プロジェクト工程管理表_ERP刷新PJ.xlsx",
+    "category": "プロジェクト管理",
+    "difficulty": "中",
+    "element_type": "XLSXセル色情報（ガントチャート）",
+    "currently_answerable": false,
+    "why_not_answerable": "openpyxlのiter_rows(values_only=True)はセルの値のみを読み取り、PatternFill（背景色）情報は取得しない。「▬」の文字は取得できるが色の違いは識別できない。",
+    "improvement_needed": "load_xlsx()でiter_rows()をvalues_only=Falseに変更し、cell.fill.fgColor.rgbを読み取ってメタ情報として付加する"
   }
 ]

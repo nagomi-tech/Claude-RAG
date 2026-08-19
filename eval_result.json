@@ -1,0 +1,605 @@
+{
+  "summary": {
+    "total": 26,
+    "source_hit": 26,
+    "source_hit_rate": 1.0,
+    "kw_hit_50": 12,
+    "kw_hit_rate_50": 0.4615,
+    "kw_perfect": 3,
+    "kw_perfect_rate": 0.1154,
+    "avg_similarity_score": 0.8612
+  },
+  "details": [
+    {
+      "id": 1,
+      "category": "事実確認",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8498,
+      "top_score": 0.8498,
+      "kw_ratio": 0.5714285714285714,
+      "hit_kws": [
+        "0名",
+        "全会一致",
+        "号議案",
+        "年度事業計画"
+      ],
+      "miss_kws": [
+        "4件",
+        "7名",
+        "1名"
+      ]
+    },
+    {
+      "id": 2,
+      "category": "事実確認",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.899,
+      "top_score": 0.899,
+      "kw_ratio": 0.875,
+      "hit_kws": [
+        "3億円",
+        "50名",
+        "資本金",
+        "従業員数",
+        "初年度",
+        "設立予定",
+        "完全子会社"
+      ],
+      "miss_kws": [
+        "AI技術開発"
+      ]
+    },
+    {
+      "id": 3,
+      "category": "業務知識",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8439,
+      "top_score": 0.8439,
+      "kw_ratio": 0.25,
+      "hit_kws": [
+        "営業担当者",
+        "顧客情報"
+      ],
+      "miss_kws": [
+        "69点",
+        "スコア",
+        "担当者確認",
+        "確認後",
+        "対応期限",
+        "当日中"
+      ]
+    },
+    {
+      "id": 4,
+      "category": "業務知識",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8272,
+      "top_score": 0.8272,
+      "kw_ratio": 0.16666666666666666,
+      "hit_kws": [
+        "メール"
+      ],
+      "miss_kws": [
+        "与信OK",
+        "在庫確認完了後",
+        "受注確認書",
+        "ル送付",
+        "自動送信"
+      ]
+    },
+    {
+      "id": 5,
+      "category": "人事・採用",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8547,
+      "top_score": 0.8547,
+      "kw_ratio": 0.2222222222222222,
+      "hit_kws": [
+        "エンジニア",
+        "優先度"
+      ],
+      "miss_kws": [
+        "ソフトウェアエンジニア",
+        "バックエンド",
+        "フィールドセールス",
+        "AIエンジニア",
+        "MLエンジニア",
+        "法人営業",
+        "ルドセ"
+      ]
+    },
+    {
+      "id": 6,
+      "category": "人事・採用",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8448,
+      "top_score": 0.8448,
+      "kw_ratio": 0.0,
+      "hit_kws": [],
+      "miss_kws": [
+        "500万円",
+        "10名",
+        "50万円",
+        "リファラル",
+        "リファラル採用",
+        "目標採用数",
+        "採用単価"
+      ]
+    },
+    {
+      "id": 7,
+      "category": "財務・業績",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.885,
+      "top_score": 0.885,
+      "kw_ratio": 1.0,
+      "hit_kws": [
+        "35.2億円",
+        "12.4%",
+        "2.1%",
+        "4.8億円",
+        "18.7%",
+        "0.8%",
+        "41.5億円",
+        "9.2%",
+        "3.5%",
+        "売上高"
+      ],
+      "miss_kws": []
+    },
+    {
+      "id": 8,
+      "category": "財務・業績",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.857,
+      "top_score": 0.857,
+      "kw_ratio": 0.2,
+      "hit_kws": [
+        "新規事業"
+      ],
+      "miss_kws": [
+        "183.3%",
+        "0.6億円",
+        "1.7億円",
+        "前年Q"
+      ]
+    },
+    {
+      "id": 9,
+      "category": "製品情報",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8665,
+      "top_score": 0.8665,
+      "kw_ratio": 0.75,
+      "hit_kws": [
+        "リリース",
+        "ユーザー",
+        "正式リリ"
+      ],
+      "miss_kws": [
+        "月額価格"
+      ]
+    },
+    {
+      "id": 10,
+      "category": "製品情報",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8981,
+      "top_score": 0.8981,
+      "kw_ratio": 1.0,
+      "hit_kws": [
+        "4点",
+        "ツール",
+        "コスト",
+        "営業生産性",
+        "非商談業務",
+        "時間以上",
+        "顧客情報",
+        "複数ツ",
+        "予測精度",
+        "受注予測"
+      ],
+      "miss_kws": []
+    },
+    {
+      "id": 11,
+      "category": "IT戦略",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.9234,
+      "top_score": 0.9234,
+      "kw_ratio": 0.375,
+      "hit_kws": [
+        "19.8億円",
+        "年合計",
+        "ERP刷新"
+      ],
+      "miss_kws": [
+        "3.5億円",
+        "4.2億円",
+        "1.0億円",
+        "8.7億円",
+        "投資額"
+      ]
+    },
+    {
+      "id": 12,
+      "category": "IT戦略",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8651,
+      "top_score": 0.8651,
+      "kw_ratio": 0.3,
+      "hit_kws": [
+        "サポート",
+        "システム",
+        "テスト"
+      ],
+      "miss_kws": [
+        "4点",
+        "オンプレ",
+        "データサイロ",
+        "ゼロトラスト",
+        "ネットワーク",
+        "セキュリティリスク",
+        "デプロイ"
+      ]
+    },
+    {
+      "id": 13,
+      "category": "財務・業績",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.864,
+      "top_score": 0.8689,
+      "kw_ratio": 0.8,
+      "hit_kws": [
+        "18.2%",
+        "グローバルテック",
+        "サポートパック",
+        "株式会社グロ",
+        "バルテック",
+        "上半期",
+        "売上高",
+        "百万円"
+      ],
+      "miss_kws": [
+        "2,840百万円",
+        "28.4億円"
+      ]
+    },
+    {
+      "id": 14,
+      "category": "財務・業績",
+      "difficulty": "難",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.82,
+      "top_score": 0.833,
+      "kw_ratio": 0.7,
+      "hit_kws": [
+        "2.4%",
+        "8.7%",
+        "マーケットリーダー",
+        "コンサルティング",
+        "株式会社マ",
+        "ケットリ",
+        "前年比"
+      ],
+      "miss_kws": [
+        "2社",
+        "1,750百万円",
+        "760百万円"
+      ]
+    },
+    {
+      "id": 15,
+      "category": "プロジェクト管理",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8533,
+      "top_score": 0.8533,
+      "kw_ratio": 0.3333333333333333,
+      "hit_kws": [
+        "プロジェクト",
+        "プロジェクト期間"
+      ],
+      "miss_kws": [
+        "プロジェクトマネージャー",
+        "プロジェクトマネ",
+        "太郎氏",
+        "佐藤 太郎氏"
+      ]
+    },
+    {
+      "id": 16,
+      "category": "プロジェクト管理",
+      "difficulty": "難",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8131,
+      "top_score": 0.8181,
+      "kw_ratio": 0.6,
+      "hit_kws": [
+        "ユーザー",
+        "カスタマイズ",
+        "リスクスコア",
+        "発生確率",
+        "影響度",
+        "対応策"
+      ],
+      "miss_kws": [
+        "ラーニング",
+        "トレーナー",
+        "ニング導入",
+        "Fit"
+      ]
+    },
+    {
+      "id": 17,
+      "category": "会社情報",
+      "difficulty": "易",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8704,
+      "top_score": 0.8704,
+      "kw_ratio": 0.8888888888888888,
+      "hit_kws": [
+        "5億円",
+        "850名",
+        "テックビル",
+        "資本金",
+        "従業員数",
+        "日現在",
+        "本社所在地",
+        "東京都千代田区丸"
+      ],
+      "miss_kws": [
+        "日設立"
+      ]
+    },
+    {
+      "id": 18,
+      "category": "会社情報",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8717,
+      "top_score": 0.8717,
+      "kw_ratio": 0.4,
+      "hit_kws": [
+        "84.0億円",
+        "10.5%",
+        "ソリューション",
+        "サービス"
+      ],
+      "miss_kws": [
+        "28.0億円",
+        "35.2%",
+        "21.0億円",
+        "3.1%",
+        "7.0億円",
+        "165%"
+      ]
+    },
+    {
+      "id": 19,
+      "category": "顧客満足度",
+      "difficulty": "中",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8883,
+      "top_score": 0.8883,
+      "kw_ratio": 0.6,
+      "hit_kws": [
+        "82.4%",
+        "79.8%",
+        "74.2%",
+        "80.0%",
+        "CSAT",
+        "業界平均"
+      ],
+      "miss_kws": [
+        "2.6ポイント",
+        "8.2ポイント",
+        "ポイント",
+        "ポイント改善"
+      ]
+    },
+    {
+      "id": 20,
+      "category": "顧客満足度",
+      "difficulty": "難",
+      "element_type": "本文テキスト",
+      "currently_answerable": true,
+      "source_hit": true,
+      "src_score": 0.8263,
+      "top_score": 0.8308,
+      "kw_ratio": 0.4,
+      "hit_kws": [
+        "モバイルアプリ",
+        "ドキュメント",
+        "ステータスページ",
+        "重要度"
+      ],
+      "miss_kws": [
+        "3件",
+        "1名",
+        "リニューアル",
+        "プロダクト",
+        "ドキュメントチーム",
+        "モバイルアプリUX"
+      ]
+    },
+    {
+      "id": 21,
+      "category": "事実確認",
+      "difficulty": "易",
+      "element_type": "DOCX結合テーブル",
+      "currently_answerable": false,
+      "source_hit": true,
+      "src_score": 0.872,
+      "top_score": 0.872,
+      "kw_ratio": 0.0,
+      "hit_kws": [],
+      "miss_kws": [
+        "代表取締役社長",
+        "一郎氏",
+        "記録者",
+        "総務部",
+        "花子氏",
+        "田中 一郎氏",
+        "山田 花子氏"
+      ]
+    },
+    {
+      "id": 22,
+      "category": "業務知識",
+      "difficulty": "中",
+      "element_type": "DOCX結合テーブル",
+      "currently_answerable": false,
+      "source_hit": true,
+      "src_score": 0.847,
+      "top_score": 0.847,
+      "kw_ratio": 0.1,
+      "hit_kws": [
+        "スコア"
+      ],
+      "miss_kws": [
+        "59点",
+        "29点",
+        "クラス",
+        "上長承認",
+        "部長クラス",
+        "対応期限",
+        "翌営業日",
+        "受注停止",
+        "受注不可"
+      ]
+    },
+    {
+      "id": 23,
+      "category": "人事・採用",
+      "difficulty": "易",
+      "element_type": "DOCX結合テーブル",
+      "currently_answerable": false,
+      "source_hit": true,
+      "src_score": 0.8493,
+      "top_score": 0.8493,
+      "kw_ratio": 0.125,
+      "hit_kws": [
+        "エンジニア"
+      ],
+      "miss_kws": [
+        "6,000万円",
+        "30名",
+        "200万円",
+        "中途エンジニア向",
+        "人材紹介",
+        "目標採用数",
+        "採用単価"
+      ]
+    },
+    {
+      "id": 24,
+      "category": "財務・業績",
+      "difficulty": "易",
+      "element_type": "PPTXグラフ（棒グラフ）",
+      "currently_answerable": false,
+      "source_hit": true,
+      "src_score": 0.8686,
+      "top_score": 0.8686,
+      "kw_ratio": 0.0,
+      "hit_kws": [],
+      "miss_kws": [
+        "10.8億円",
+        "11.5億円",
+        "12.9億円"
+      ]
+    },
+    {
+      "id": 25,
+      "category": "IT戦略",
+      "difficulty": "易",
+      "element_type": "PPTXグラフ（積み上げ棒グラフ）",
+      "currently_answerable": false,
+      "source_hit": true,
+      "src_score": 0.8854,
+      "top_score": 0.8854,
+      "kw_ratio": 0.5,
+      "hit_kws": [
+        "1.5億円"
+      ],
+      "miss_kws": [
+        "AI基盤投資額"
+      ]
+    },
+    {
+      "id": 26,
+      "category": "プロジェクト管理",
+      "difficulty": "中",
+      "element_type": "XLSXセル色情報（ガントチャート）",
+      "currently_answerable": false,
+      "source_hit": true,
+      "src_score": 0.8197,
+      "top_score": 0.8197,
+      "kw_ratio": 1.0,
+      "hit_kws": [
+        "5社",
+        "プロセスマッピング",
+        "タスク",
+        "WBS",
+        "現状業務分析",
+        "要件定義",
+        "ISプロセスマッピング",
+        "BE要件定義書作成",
+        "RFP作成",
+        "AS"
+      ],
+      "miss_kws": []
+    }
+  ]
+}
