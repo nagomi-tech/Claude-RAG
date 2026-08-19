@@ -13,3 +13,4 @@ matplotlib
 reportlab
 anthropic
 python-dotenv
+pypdfium2
