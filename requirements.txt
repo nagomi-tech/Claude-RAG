@@ -11,3 +11,5 @@ langchain-chroma
 openpyxl
 matplotlib
 reportlab
+anthropic
+python-dotenv
