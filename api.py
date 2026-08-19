@@ -103,7 +103,10 @@ def root():
 
 @app.get("/health")
 def health():
-    count = vectorstore._collection.count()
+    try:
+        count = len(vectorstore.get()["ids"])
+    except Exception:
+        count = -1
     return {"status": "ok", "indexed_chunks": count}
 
 
