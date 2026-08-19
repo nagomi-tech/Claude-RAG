@@ -1,14 +1,15 @@
 """
-Vision-based image indexing for Q21-25 (embedded chart/diagram images).
+Vision-based image indexing for all documents under docs/.
 
-Extracts images from:
-  - 売上実績ダッシュボード_2024上半期.pdf       (pages 2-3: bar/pie charts)
-  - 組織図_テックリードジャパン_2024年4月.pptx  (slide 2: org chart PNG)
-  - 業務フロー図_カスタマーサクセス対応.docx    (inline image: flowchart PNG)
+Scans docs/ for PDF/PPTX/DOCX/XLSX files and extracts all embedded images.
+Each image is described by Claude Vision and added to ChromaDB as a text chunk.
 
-Sends each image to Claude Vision → extracts text → adds to ChromaDB.
+Usage:
+  python ingest_vision.py           # process all files
+  python ingest_vision.py --force   # re-index even if already indexed
 """
 
+import argparse
 import base64
 import io
 import os
@@ -17,9 +18,9 @@ from pathlib import Path
 
 import anthropic
 from dotenv import load_dotenv
-from langchain_core.documents import Document
 from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_core.documents import Document
 
 load_dotenv()
 
@@ -29,89 +30,115 @@ EMBED_MODEL = "intfloat/multilingual-e5-small"
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
 
-# ─── 画像抽出 ─────────────────────────────────────────────────────────────────
+# ─── 画像抽出（ファイル形式別） ───────────────────────────────────────────────
 
-def pdf_pages_as_png(pdf_path: Path, page_numbers: list[int]) -> list[tuple[int, bytes]]:
-    """Render specified PDF pages (1-indexed) as PNG bytes using pypdfium2."""
+def pdf_images(pdf_path: Path) -> list[tuple[str, bytes]]:
+    """Render every PDF page as PNG."""
     import pypdfium2 as pdfium
     pdf = pdfium.PdfDocument(str(pdf_path))
     results = []
-    for page_no in page_numbers:
-        page = pdf[page_no - 1]
-        bitmap = page.render(scale=2.0)
-        pil_image = bitmap.to_pil()
+    for i in range(len(pdf)):
+        bitmap = pdf[i].render(scale=2.0)
         buf = io.BytesIO()
-        pil_image.save(buf, format="PNG")
-        results.append((page_no, buf.getvalue()))
+        bitmap.to_pil().save(buf, format="PNG")
+        results.append((f"p.{i + 1}", buf.getvalue()))
     return results
 
 
-def pptx_picture_blobs(pptx_path: Path) -> list[tuple[str, bytes]]:
-    """Extract Picture shape image bytes from each PPTX slide."""
+def pptx_images(pptx_path: Path) -> list[tuple[str, bytes]]:
+    """Extract Picture shapes from all PPTX slides."""
     from pptx import Presentation
     from pptx.enum.shapes import MSO_SHAPE_TYPE
 
     prs = Presentation(str(pptx_path))
-    images = []
+    results = []
     for i, slide in enumerate(prs.slides, 1):
-        for shape in slide.shapes:
+        for j, shape in enumerate(slide.shapes, 1):
             if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                images.append((f"スライド{i}", shape.image.blob))
-    return images
+                results.append((f"スライド{i}-図{j}", shape.image.blob))
+    return results
 
 
-def docx_inline_image_blobs(docx_path: Path) -> list[tuple[str, bytes]]:
-    """Extract inline image bytes from DOCX."""
-    from docx import Document
+def docx_images(docx_path: Path) -> list[tuple[str, bytes]]:
+    """Extract inline images from DOCX."""
+    from docx import Document as DocxDocument
 
-    doc = Document(str(docx_path))
-    images = []
+    doc = DocxDocument(str(docx_path))
+    results = []
     for i, shape in enumerate(doc.inline_shapes, 1):
         try:
             rId = shape._inline.graphic.graphicData.pic.blipFill.blip.embed
-            image_part = doc.part.related_parts[rId]
-            images.append((f"図{i}", image_part.blob))
+            blob = doc.part.related_parts[rId].blob
+            results.append((f"図{i}", blob))
         except Exception:
             pass
-    return images
+    return results
+
+
+def xlsx_images(xlsx_path: Path) -> list[tuple[str, bytes]]:
+    """Extract embedded image objects from all worksheets in an XLSX."""
+    from openpyxl import load_workbook
+
+    wb = load_workbook(str(xlsx_path), data_only=True)
+    results = []
+    for ws in wb.worksheets:
+        for i, img in enumerate(ws._images, 1):
+            try:
+                data = img._data()
+                results.append((f"{ws.title}-画像{i}", data))
+            except Exception:
+                pass
+    return results
+
+
+def extract_images(path: Path) -> list[tuple[str, bytes]]:
+    """Dispatch to the appropriate extractor by file extension."""
+    ext = path.suffix.lower()
+    try:
+        if ext == ".pdf":
+            return pdf_images(path)
+        elif ext in (".pptx", ".ppt"):
+            return pptx_images(path)
+        elif ext in (".docx", ".doc"):
+            return docx_images(path)
+        elif ext in (".xlsx", ".xls"):
+            return xlsx_images(path)
+    except Exception as e:
+        print(f"    [抽出エラー] {path.name}: {e}")
+    return []
 
 
 # ─── Vision 説明文生成 ────────────────────────────────────────────────────────
 
 def describe_image(client: anthropic.Anthropic, image_bytes: bytes,
-                   doc_name: str, image_desc: str) -> str:
-    """Call Claude Vision and return full text description of the image."""
+                   doc_name: str, image_label: str) -> str:
+    """Send image to Claude Vision and return Japanese text description."""
     b64 = base64.standard_b64encode(image_bytes).decode()
-    # Detect media type from bytes header
     media_type = "image/png" if image_bytes[:4] == b"\x89PNG" else "image/jpeg"
 
-    message = client.messages.create(
+    msg = client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=2048,
         messages=[{
             "role": "user",
             "content": [
-                {
-                    "type": "image",
-                    "source": {"type": "base64", "media_type": media_type, "data": b64},
-                },
-                {
-                    "type": "text",
-                    "text": (
-                        f"これは「{doc_name}」の{image_desc}です。\n"
-                        "この画像に含まれるすべての情報（数値、名前、項目名、構造、関係性など）を"
-                        "漏れなく日本語のテキストとして書き起こしてください。\n"
-                        "グラフの場合は各項目の値を、組織図の場合は階層構造と人名を、"
-                        "フロー図の場合は各ステップと条件分岐を具体的に記述してください。"
-                    ),
-                },
+                {"type": "image",
+                 "source": {"type": "base64", "media_type": media_type, "data": b64}},
+                {"type": "text",
+                 "text": (
+                     f"これは「{doc_name}」の{image_label}です。\n"
+                     "この画像に含まれるすべての情報（数値、名前、項目名、構造、関係性など）を"
+                     "漏れなく日本語のテキストとして書き起こしてください。\n"
+                     "グラフの場合は各項目の値を、組織図の場合は階層構造と人名を、"
+                     "フロー図の場合は各ステップと条件分岐を具体的に記述してください。"
+                 )},
             ],
         }],
     )
-    return message.content[0].text
+    return msg.content[0].text
 
 
-# ─── ChromaDB 追加 ────────────────────────────────────────────────────────────
+# ─── ChromaDB ────────────────────────────────────────────────────────────────
 
 def get_vectorstore() -> Chroma:
     embeddings = HuggingFaceEmbeddings(
@@ -126,55 +153,83 @@ def get_vectorstore() -> Chroma:
     )
 
 
+def already_indexed(vectorstore: Chroma, source: str) -> bool:
+    """Return True if vision_extracted chunks for this source already exist."""
+    result = vectorstore.get(where={"$and": [
+        {"source": {"$eq": source}},
+        {"file_type": {"$eq": "vision_extracted"}},
+    ]})
+    return len(result["ids"]) > 0
+
+
 # ─── メイン ───────────────────────────────────────────────────────────────────
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--force", action="store_true",
+                        help="Re-index even if already indexed")
+    args = parser.parse_args()
+
     if not ANTHROPIC_API_KEY:
         raise SystemExit("Error: ANTHROPIC_API_KEY not set in .env")
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     vectorstore = get_vectorstore()
 
-    tasks: list[tuple[str, str, bytes]] = []  # (source_title, image_desc, image_bytes)
+    # docs/ 以下の対象ファイルをすべてスキャン
+    target_extensions = {".pdf", ".pptx", ".ppt", ".docx", ".doc", ".xlsx", ".xls"}
+    doc_files = sorted(
+        f for f in DOCS.iterdir()
+        if f.is_file() and f.suffix.lower() in target_extensions
+    )
 
-    # ── PDF: ページ2（棒グラフ）・ページ3（円グラフ） ──────────────────────────
-    pdf_path = DOCS / "売上実績ダッシュボード_2024上半期.pdf"
-    doc_name = "売上実績ダッシュボード_2024上半期.pdf"
-    for page_no, img_bytes in pdf_pages_as_png(pdf_path, [2, 3]):
-        label = "月別売上高推移（棒グラフ）" if page_no == 2 else "事業部別売上比率（円グラフ）"
-        tasks.append((doc_name, f"p.{page_no} {label}", img_bytes))
-    print(f"  PDF: {len([t for t in tasks if '売上' in t[0]])}ページ抽出")
+    print(f"対象ファイル: {len(doc_files)} 件\n")
 
-    # ── PPTX: 組織図スライド ───────────────────────────────────────────────────
-    pptx_path = DOCS / "組織図_テックリードジャパン_2024年4月.pptx"
-    doc_name_p = "組織図_テックリードジャパン_2024年4月.pptx"
-    for slide_label, img_bytes in pptx_picture_blobs(pptx_path):
-        tasks.append((doc_name_p, f"{slide_label} 組織図", img_bytes))
-    print(f"  PPTX: {len([t for t in tasks if '組織図' in t[0]])}画像抽出")
+    tasks: list[tuple[str, str, bytes]] = []  # (source, label, image_bytes)
 
-    # ── DOCX: フロー図 ─────────────────────────────────────────────────────────
-    docx_path = DOCS / "業務フロー図_カスタマーサクセス対応.docx"
-    doc_name_d = "業務フロー図_カスタマーサクセス対応.docx"
-    for fig_label, img_bytes in docx_inline_image_blobs(docx_path):
-        tasks.append((doc_name_d, f"{fig_label} 問い合わせ対応フロー", img_bytes))
-    print(f"  DOCX: {len([t for t in tasks if 'フロー' in t[0]])}画像抽出")
+    for doc_path in doc_files:
+        source = doc_path.name
+        if not args.force and already_indexed(vectorstore, source):
+            print(f"  スキップ（既存）: {source}")
+            continue
+
+        images = extract_images(doc_path)
+        if not images:
+            print(f"  画像なし: {source}")
+            continue
+
+        print(f"  {source}: {len(images)} 画像")
+        for label, img_bytes in images:
+            tasks.append((source, label, img_bytes))
+
+    if not tasks:
+        print("\n新たにインデックスする画像はありません。(--force で再実行)")
+        return
 
     print(f"\n合計 {len(tasks)} 件の画像をVisionで解析します...\n")
 
     docs_to_add: list[Document] = []
-    for source, image_desc, img_bytes in tasks:
-        print(f"  Vision解析中: {source} [{image_desc}]", end=" ", flush=True)
-        text = describe_image(client, img_bytes, source, image_desc)
-        docs_to_add.append(Document(
-            page_content=text,
-            metadata={"source": source, "file_type": "vision_extracted", "image_desc": image_desc},
-        ))
-        print(f"→ {len(text)}文字")
+    for source, label, img_bytes in tasks:
+        print(f"  [{source}] {label}", end=" ... ", flush=True)
+        try:
+            text = describe_image(client, img_bytes, source, label)
+            docs_to_add.append(Document(
+                page_content=text,
+                metadata={
+                    "source": source,
+                    "file_type": "vision_extracted",
+                    "image_desc": label,
+                },
+            ))
+            print(f"{len(text)}文字")
+        except Exception as e:
+            print(f"[Visionエラー] {e}")
         time.sleep(1.0)
 
-    vectorstore.add_documents(docs_to_add)
-    print(f"\nChromaDBに {len(docs_to_add)} チャンク追加完了。")
-    print("api.py を再起動してください。")
+    if docs_to_add:
+        vectorstore.add_documents(docs_to_add)
+        print(f"\nChromaDBに {len(docs_to_add)} チャンク追加完了。")
+        print("api.py を再起動してください。")
 
 
 if __name__ == "__main__":
