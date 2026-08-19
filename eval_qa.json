@@ -202,79 +202,6 @@
 
   {
     "id": 21,
-    "question": "取締役会議事録の冒頭にある基本情報テーブルに記載されている「議長名」と「記録者名・所属」を教えてください。",
-    "expected_answer": "議長は代表取締役社長の田中 一郎氏、記録者は総務部の山田 花子氏です。",
-    "source": "取締役会議事録_2024年3月期.docx",
-    "category": "事実確認",
-    "difficulty": "易",
-    "element_type": "DOCX結合テーブル",
-    "currently_answerable": false,
-    "why_not_answerable": "ingest.pyはdoc.paragraphsのみを読み込んでおり、doc.tablesのセル内テキストを取得していないため。議長名・記録者はテーブルセル内に記載されている。",
-    "improvement_needed": "load_docx()にdoc.tablesのセル読み込みを追加する"
-  },
-  {
-    "id": 22,
-    "question": "業務マニュアルの与信審査基準表において、「上長承認」と「受注停止」それぞれの判定スコア範囲・処理方法・対応期限を教えてください。",
-    "expected_answer": "上長承認：スコア50〜59点、部長クラスの承認が必要、対応期限は翌営業日まで。受注停止：スコア0〜29点、受注不可で顧客へ理由を説明し代替案を提示、対応期限は即時連絡。",
-    "source": "業務マニュアル_受注処理フロー_第5版.docx",
-    "category": "業務知識",
-    "difficulty": "中",
-    "element_type": "DOCX結合テーブル",
-    "currently_answerable": false,
-    "why_not_answerable": "与信審査基準表はDOCXのdoc.tablesとして作成されており、現在のload_docx()では取得されない。",
-    "improvement_needed": "load_docx()にdoc.tablesのセル読み込みを追加する"
-  },
-  {
-    "id": 23,
-    "question": "採用計画書の採用チャネル別コスト計画表において、中途エンジニア向け人材紹介の予算・目標採用数・1人当たり採用単価を教えてください。",
-    "expected_answer": "中途エンジニア向け人材紹介の予算は6,000万円、目標採用数は30名、1人当たり採用単価は200万円です。",
-    "source": "2024年度採用計画書.docx",
-    "category": "人事・採用",
-    "difficulty": "易",
-    "element_type": "DOCX結合テーブル",
-    "currently_answerable": false,
-    "why_not_answerable": "採用チャネル別コスト計画はDOCXのdoc.tablesとして作成されており、現在のload_docx()では取得されない。",
-    "improvement_needed": "load_docx()にdoc.tablesのセル読み込みを追加する"
-  },
-  {
-    "id": 24,
-    "question": "2024年Q1事業実績報告書の月次売上棒グラフに示されている4月・5月・6月それぞれの売上高（億円）を教えてください。",
-    "expected_answer": "4月は10.8億円、5月は11.5億円、6月は12.9億円です。",
-    "source": "2024年Q1事業実績報告書.pptx",
-    "category": "財務・業績",
-    "difficulty": "易",
-    "element_type": "PPTXグラフ（棒グラフ）",
-    "currently_answerable": false,
-    "why_not_answerable": "PPTXのChartオブジェクトのデータ値はXML内のc:ser/c:val要素に格納されており、shape.textでは取得されない。グラフのタイトルのみ取得可能。",
-    "improvement_needed": "load_pptx()でshape.chart_type判定後、chart.plots[0].series からデータ値を抽出する処理を追加する"
-  },
-  {
-    "id": 25,
-    "question": "IT基盤整備中期計画の投資計画グラフ（積み上げ棒グラフ）で、2025年度のDX・AI基盤投資額（億円）はいくらですか？",
-    "expected_answer": "2025年度のDX・AI基盤投資額は1.5億円です。",
-    "source": "IT基盤整備中期計画_2024-2026.pptx",
-    "category": "IT戦略",
-    "difficulty": "易",
-    "element_type": "PPTXグラフ（積み上げ棒グラフ）",
-    "currently_answerable": false,
-    "why_not_answerable": "PPTXの積み上げ棒グラフのシリーズデータはshape.textに含まれない。グラフタイトルと凡例テキストは取得できるが、数値データは取得不可。",
-    "improvement_needed": "load_pptx()でChartオブジェクトからシリーズデータを抽出する処理を追加する"
-  },
-  {
-    "id": 26,
-    "question": "プロジェクト工程管理表のガントチャートで、セルの色が「緑色（完了）」で塗られているタスク（WBS番号とタスク名）をすべて教えてください。",
-    "expected_answer": "緑色（完了）になっているのはWBS 1「現状業務分析・要件定義」、WBS 1.1「AS-ISプロセスマッピング」、WBS 1.2「TO-BE要件定義書作成」、WBS 2.1「RFP作成・送付（5社）」の4タスクです。",
-    "source": "プロジェクト工程管理表_ERP刷新PJ.xlsx",
-    "category": "プロジェクト管理",
-    "difficulty": "中",
-    "element_type": "XLSXセル色情報（ガントチャート）",
-    "currently_answerable": false,
-    "why_not_answerable": "openpyxlのiter_rows(values_only=True)はセルの値のみを読み取り、PatternFill（背景色）情報は取得しない。「▬」の文字は取得できるが色の違いは識別できない。",
-    "improvement_needed": "load_xlsx()でiter_rows()をvalues_only=Falseに変更し、cell.fill.fgColor.rgbを読み取ってメタ情報として付加する"
-  },
-
-  {
-    "id": 27,
     "question": "売上実績ダッシュボード（2024年上半期）の月別売上棒グラフを見て、最も売上が高かった月とその概算売上高（億円）を教えてください。",
     "expected_answer": "9月が最も売上が高く、約16.8億円です。グラフでは赤色のバーで示されており、Y軸の目盛りから読み取ることができます。",
     "source": "売上実績ダッシュボード_2024上半期.pdf",
@@ -287,7 +214,7 @@
   },
 
   {
-    "id": 28,
+    "id": 22,
     "question": "売上実績ダッシュボード（2024年上半期）の事業部別売上比率グラフ（円グラフ）において、「新規事業」のシェアは何パーセントですか？",
     "expected_answer": "新規事業のシェアは12%です。円グラフ内に「12%」と数値ラベルが表示されています。",
     "source": "売上実績ダッシュボード_2024上半期.pdf",
@@ -300,7 +227,7 @@
   },
 
   {
-    "id": 29,
+    "id": 23,
     "question": "テックリードジャパンの組織図（2024年4月改訂版）において、CTO（佐藤三郎氏）直下に配置されている部署名と各部長名をすべて教えてください。",
     "expected_answer": "CTO直下には3部署あります。AI開発部（部長: 高田健一）、インフラ部（部長: 中村誠）、セキュリティ部（部長: 山口真理）の3部門です。",
     "source": "組織図_テックリードジャパン_2024年4月.pptx",
@@ -313,7 +240,7 @@
   },
 
   {
-    "id": 30,
+    "id": 24,
     "question": "カスタマーサクセスの問い合わせ対応フロー図において、「緊急（S）」の問い合わせはL3エスカレーション後、何分以内に対応を開始しなければなりませんか？",
     "expected_answer": "30分以内に対応を開始しなければなりません。フロー図の緊急（S）ボックス内に「30分以内に対応開始」と記載されています。",
     "source": "業務フロー図_カスタマーサクセス対応.docx",
@@ -326,7 +253,7 @@
   },
 
   {
-    "id": 31,
+    "id": 25,
     "question": "カスタマーサクセスのフロー図で、顧客が「解決確認」でNoと回答した場合、次のステップは何ですか？",
     "expected_answer": "「調査・対応・解決策の提案」ステップに戻り、再調査を行います。フロー図上ではNoの矢印が「調査・対応・解決策の提案」ボックスにループして戻るように描かれています。",
     "source": "業務フロー図_カスタマーサクセス対応.docx",

@@ -1,13 +1,13 @@
 {
   "summary": {
-    "total": 31,
-    "source_hit": 26,
-    "source_hit_rate": 0.8387,
-    "kw_hit_50": 12,
-    "kw_hit_rate_50": 0.3871,
-    "kw_perfect": 3,
-    "kw_perfect_rate": 0.0968,
-    "avg_similarity_score": 0.8559
+    "total": 25,
+    "source_hit": 20,
+    "source_hit_rate": 0.8,
+    "kw_hit_50": 10,
+    "kw_hit_rate_50": 0.4,
+    "kw_perfect": 2,
+    "kw_perfect_rate": 0.08,
+    "avg_similarity_score": 0.8556
   },
   "details": [
     {
@@ -476,133 +476,6 @@
     },
     {
       "id": 21,
-      "category": "事実確認",
-      "difficulty": "易",
-      "element_type": "DOCX結合テーブル",
-      "currently_answerable": false,
-      "source_hit": true,
-      "src_score": 0.872,
-      "top_score": 0.872,
-      "kw_ratio": 0.0,
-      "hit_kws": [],
-      "miss_kws": [
-        "代表取締役社長",
-        "一郎氏",
-        "記録者",
-        "総務部",
-        "花子氏",
-        "田中 一郎氏",
-        "山田 花子氏"
-      ]
-    },
-    {
-      "id": 22,
-      "category": "業務知識",
-      "difficulty": "中",
-      "element_type": "DOCX結合テーブル",
-      "currently_answerable": false,
-      "source_hit": true,
-      "src_score": 0.847,
-      "top_score": 0.847,
-      "kw_ratio": 0.1,
-      "hit_kws": [
-        "スコア"
-      ],
-      "miss_kws": [
-        "59点",
-        "29点",
-        "クラス",
-        "上長承認",
-        "部長クラス",
-        "対応期限",
-        "翌営業日",
-        "受注停止",
-        "受注不可"
-      ]
-    },
-    {
-      "id": 23,
-      "category": "人事・採用",
-      "difficulty": "易",
-      "element_type": "DOCX結合テーブル",
-      "currently_answerable": false,
-      "source_hit": true,
-      "src_score": 0.8493,
-      "top_score": 0.8493,
-      "kw_ratio": 0.125,
-      "hit_kws": [
-        "エンジニア"
-      ],
-      "miss_kws": [
-        "6,000万円",
-        "30名",
-        "200万円",
-        "中途エンジニア向",
-        "人材紹介",
-        "目標採用数",
-        "採用単価"
-      ]
-    },
-    {
-      "id": 24,
-      "category": "財務・業績",
-      "difficulty": "易",
-      "element_type": "PPTXグラフ（棒グラフ）",
-      "currently_answerable": false,
-      "source_hit": true,
-      "src_score": 0.8686,
-      "top_score": 0.8686,
-      "kw_ratio": 0.0,
-      "hit_kws": [],
-      "miss_kws": [
-        "10.8億円",
-        "11.5億円",
-        "12.9億円"
-      ]
-    },
-    {
-      "id": 25,
-      "category": "IT戦略",
-      "difficulty": "易",
-      "element_type": "PPTXグラフ（積み上げ棒グラフ）",
-      "currently_answerable": false,
-      "source_hit": true,
-      "src_score": 0.8854,
-      "top_score": 0.8854,
-      "kw_ratio": 0.5,
-      "hit_kws": [
-        "1.5億円"
-      ],
-      "miss_kws": [
-        "AI基盤投資額"
-      ]
-    },
-    {
-      "id": 26,
-      "category": "プロジェクト管理",
-      "difficulty": "中",
-      "element_type": "XLSXセル色情報（ガントチャート）",
-      "currently_answerable": false,
-      "source_hit": true,
-      "src_score": 0.8197,
-      "top_score": 0.8197,
-      "kw_ratio": 1.0,
-      "hit_kws": [
-        "5社",
-        "プロセスマッピング",
-        "タスク",
-        "WBS",
-        "現状業務分析",
-        "要件定義",
-        "ISプロセスマッピング",
-        "BE要件定義書作成",
-        "RFP作成",
-        "AS"
-      ],
-      "miss_kws": []
-    },
-    {
-      "id": 27,
       "category": "財務・業績",
       "difficulty": "易",
       "element_type": "埋め込み画像（棒グラフ）",
@@ -618,7 +491,7 @@
       ]
     },
     {
-      "id": 28,
+      "id": 22,
       "category": "財務・業績",
       "difficulty": "易",
       "element_type": "埋め込み画像（円グラフ）",
@@ -640,7 +513,7 @@
       ]
     },
     {
-      "id": 29,
+      "id": 23,
       "category": "会社情報",
       "difficulty": "中",
       "element_type": "埋め込み画像（組織図）",
@@ -664,7 +537,7 @@
       ]
     },
     {
-      "id": 30,
+      "id": 24,
       "category": "業務知識",
       "difficulty": "易",
       "element_type": "埋め込み画像（フロー図）",
@@ -683,7 +556,7 @@
       ]
     },
     {
-      "id": 31,
+      "id": 25,
       "category": "業務知識",
       "difficulty": "中",
       "element_type": "埋め込み画像（フロー図）",
