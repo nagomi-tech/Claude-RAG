@@ -7,6 +7,23 @@ Each image is described by Claude Vision and added to ChromaDB as a text chunk.
 Usage:
   python ingest_vision.py           # process all files
   python ingest_vision.py --force   # re-index even if already indexed
+
+# ── 既知の制限事項（v2.1時点） ──────────────────────────────────────────────
+#
+# 【PPTX】グループシェイプ内の画像が未対応
+#   PowerPoint でグループ化されたオブジェクト（GROUP_SHAPE）の中に画像がある場合、
+#   再帰的な探索を行っていないため画像がスキップされる。
+#
+# 【DOCX】浮動配置の画像が未対応
+#   python-docx の doc.inline_shapes はインライン配置（文字列中に埋め込まれた画像）のみ対象。
+#   「文字列の折り返し」を設定した浮動画像（Word の「前面」「四角形」等）は取得されない。
+#
+# 【全形式】画像のメディアタイプ判定がPNG・JPEGのみ
+#   先頭バイトがPNGシグネチャ以外の画像はすべて image/jpeg として Claude API に送信する。
+#   GIF・WebP・BMP 等が含まれると誤ったメディアタイプとなり、APIエラーになる可能性がある。
+#   Claude API がサポートするメディアタイプ: image/jpeg, image/png, image/gif, image/webp
+#
+# ─────────────────────────────────────────────────────────────────────────────
 """
 
 import argparse
