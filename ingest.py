@@ -37,7 +37,19 @@ def load_pdf(path: str) -> str:
 
 def load_docx(path: str) -> str:
     doc = DocxDocument(path)
-    return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+    parts = [p.text for p in doc.paragraphs if p.text.strip()]
+    for table in doc.tables:
+        for row in table.rows:
+            row_text = "\t".join(cell.text.strip() for cell in row.cells if cell.text.strip())
+            if row_text:
+                parts.append(row_text)
+    # テキストボックス（floating shape）
+    for elem in doc.element.body.iter():
+        if elem.tag.endswith('}txbxContent'):
+            txbx_text = "".join(t.text for t in elem.iter() if t.tag.endswith('}t') and t.text)
+            if txbx_text.strip():
+                parts.append(txbx_text)
+    return "\n".join(parts)
 
 
 def load_pptx(path: str) -> str:
@@ -45,7 +57,30 @@ def load_pptx(path: str) -> str:
     texts = []
     for slide in prs.slides:
         for shape in slide.shapes:
-            if hasattr(shape, "text") and shape.text.strip():
+            if shape.has_table:
+                for row in shape.table.rows:
+                    row_text = "\t".join(cell.text.strip() for cell in row.cells if cell.text.strip())
+                    if row_text:
+                        texts.append(row_text)
+            elif shape.has_chart:
+                try:
+                    chart = shape.chart
+                    for plot in chart.plots:
+                        cats = []
+                        if hasattr(plot, "categories") and plot.categories:
+                            cats = [str(c) if c is not None else "" for c in plot.categories]
+                        for series in plot.series:
+                            name = series.name or ""
+                            vals = [str(v) if v is not None else "" for v in series.values]
+                            if cats:
+                                for cat, val in zip(cats, vals):
+                                    if cat or val:
+                                        texts.append(f"{name}\t{cat}\t{val}")
+                            elif vals:
+                                texts.append(f"{name}\t" + "\t".join(vals))
+                except Exception:
+                    pass
+            elif hasattr(shape, "text") and shape.text.strip():
                 texts.append(shape.text)
     return "\n".join(texts)
 
