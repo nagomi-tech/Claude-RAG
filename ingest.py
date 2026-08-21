@@ -1,10 +1,16 @@
 """
 ドキュメントを読み込み、ChromaDBにベクトル化して保存するスクリプト。
 対応形式: PDF, DOCX, PPTX, XLSX
+
+変更履歴:
+  v3: ローダーをlist[Document]返却に変更。PDF=ページ単位、PPTX=スライド単位、
+      XLSX=シート単位、DOCX=見出し単位でDocument化。テーブルは独立Document
+      (Markdown形式)としてsplitter対象外に。chunk_overlap 50→100。
+      --collection オプションで複数バージョンのDBを管理可能。
 """
 
+import argparse
 import os
-import glob
 from pathlib import Path
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -12,56 +18,129 @@ from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 
-# PDF
 from pypdf import PdfReader
-
-# DOCX
 from docx import Document as DocxDocument
-
-# PPTX
 from pptx import Presentation
-
-# XLSX
 import openpyxl
 
 
 DOCS_DIR = Path(__file__).parent / "docs"
 CHROMA_DIR = Path(__file__).parent / "chroma_db"
-EMBED_MODEL = "intfloat/multilingual-e5-small"  # 多言語対応・軽量モデル
+EMBED_MODEL = "intfloat/multilingual-e5-small"
+DEFAULT_COLLECTION = "dify_rag"
 
 
-def load_pdf(path: str) -> str:
-    reader = PdfReader(path)
-    return "\n".join(page.extract_text() or "" for page in reader.pages)
+# ── ユーティリティ ────────────────────────────────────────────────────────────
+
+def rows_to_markdown(rows: list[list[str]]) -> str:
+    """行リストをMarkdownテーブル文字列に変換する。"""
+    if not rows:
+        return ""
+    header = rows[0]
+    lines = ["| " + " | ".join(header) + " |",
+             "|" + "|".join(["---"] * len(header)) + "|"]
+    for row in rows[1:]:
+        # 列数を揃える
+        padded = row + [""] * (len(header) - len(row))
+        lines.append("| " + " | ".join(padded[:len(header)]) + " |")
+    return "\n".join(lines)
 
 
-def load_docx(path: str) -> str:
-    doc = DocxDocument(path)
-    parts = [p.text for p in doc.paragraphs if p.text.strip()]
-    for table in doc.tables:
+# ── ローダー（各形式 → list[Document]） ──────────────────────────────────────
+
+def load_pdf(path: Path) -> list[Document]:
+    """PDFをページ単位でDocument化する。"""
+    reader = PdfReader(str(path))
+    docs = []
+    for i, page in enumerate(reader.pages):
+        text = page.extract_text() or ""
+        if text.strip():
+            docs.append(Document(
+                page_content=text,
+                metadata={"source": path.name, "file_type": "pdf", "page": i + 1},
+            ))
+    return docs
+
+
+def load_docx(path: Path) -> list[Document]:
+    """DOCXを見出し単位のセクションDocument + テーブルDocumentに分割する。"""
+    doc = DocxDocument(str(path))
+    docs = []
+
+    # ── 見出し単位でセクション分割 ──
+    current_heading = "（前文）"
+    current_parts = []
+
+    def flush_section():
+        text = "\n".join(current_parts).strip()
+        if text:
+            docs.append(Document(
+                page_content=text,
+                metadata={"source": path.name, "file_type": "docx",
+                          "section": current_heading},
+            ))
+
+    for p in doc.paragraphs:
+        if p.style.name.startswith("Heading"):
+            flush_section()
+            current_heading = p.text.strip() or current_heading
+            current_parts = [p.text] if p.text.strip() else []
+        else:
+            if p.text.strip():
+                current_parts.append(p.text)
+    flush_section()
+
+    # ── テーブルを独立Document（Markdown）として追加 ──
+    for i, table in enumerate(doc.tables):
+        rows = []
         for row in table.rows:
-            row_text = "\t".join(cell.text.strip() for cell in row.cells if cell.text.strip())
-            if row_text:
-                parts.append(row_text)
-    # テキストボックス（floating shape）
+            cells = [cell.text.strip().replace("|", "｜") for cell in row.cells]
+            rows.append(cells)
+        md = rows_to_markdown(rows)
+        if md:
+            docs.append(Document(
+                page_content=md,
+                metadata={"source": path.name, "file_type": "docx",
+                          "type": "table", "table_index": i + 1},
+            ))
+
+    # ── テキストボックス ──
     for elem in doc.element.body.iter():
-        if elem.tag.endswith('}txbxContent'):
-            txbx_text = "".join(t.text for t in elem.iter() if t.tag.endswith('}t') and t.text)
+        if elem.tag.endswith("}txbxContent"):
+            txbx_text = "".join(
+                t.text for t in elem.iter() if t.tag.endswith("}t") and t.text
+            )
             if txbx_text.strip():
-                parts.append(txbx_text)
-    return "\n".join(parts)
+                docs.append(Document(
+                    page_content=txbx_text,
+                    metadata={"source": path.name, "file_type": "docx",
+                              "type": "textbox"},
+                ))
+
+    return docs
 
 
-def load_pptx(path: str) -> str:
-    prs = Presentation(path)
-    texts = []
-    for slide in prs.slides:
+def load_pptx(path: Path) -> list[Document]:
+    """PPTXをスライド単位でDocument化する。テーブルは独立Document（Markdown）。"""
+    prs = Presentation(str(path))
+    docs = []
+
+    for i, slide in enumerate(prs.slides):
+        texts = []
+
         for shape in slide.shapes:
             if shape.has_table:
+                rows = []
                 for row in shape.table.rows:
-                    row_text = "\t".join(cell.text.strip() for cell in row.cells if cell.text.strip())
-                    if row_text:
-                        texts.append(row_text)
+                    cells = [cell.text.strip().replace("|", "｜") for cell in row.cells]
+                    rows.append(cells)
+                md = rows_to_markdown(rows)
+                if md:
+                    docs.append(Document(
+                        page_content=md,
+                        metadata={"source": path.name, "file_type": "pptx",
+                                  "slide": i + 1, "type": "table"},
+                    ))
             elif shape.has_chart:
                 try:
                     chart = shape.chart
@@ -82,19 +161,40 @@ def load_pptx(path: str) -> str:
                     pass
             elif hasattr(shape, "text") and shape.text.strip():
                 texts.append(shape.text)
-    return "\n".join(texts)
+
+        if texts:
+            docs.append(Document(
+                page_content="\n".join(texts),
+                metadata={"source": path.name, "file_type": "pptx", "slide": i + 1},
+            ))
+
+    return docs
 
 
-def load_xlsx(path: str) -> str:
-    wb = openpyxl.load_workbook(path, data_only=True)
-    texts = []
+def load_xlsx(path: Path) -> list[Document]:
+    """XLSXをシート単位でDocument化する（Markdownテーブル形式）。"""
+    wb = openpyxl.load_workbook(str(path), data_only=True)
+    docs = []
+
     for sheet in wb.worksheets:
-        texts.append(f"[シート: {sheet.title}]")
-        for row in sheet.iter_rows(values_only=True):
-            row_text = "\t".join(str(c) for c in row if c is not None)
-            if row_text.strip():
-                texts.append(row_text)
-    return "\n".join(texts)
+        all_rows = list(sheet.iter_rows(values_only=True))
+        non_empty = [
+            [str(c) if c is not None else "" for c in row]
+            for row in all_rows
+            if any(c is not None for c in row)
+        ]
+        if not non_empty:
+            continue
+
+        header = f"[シート: {sheet.title}]\n"
+        md = rows_to_markdown(non_empty)
+        docs.append(Document(
+            page_content=header + md,
+            metadata={"source": path.name, "file_type": "xlsx",
+                      "sheet": sheet.title, "type": "table"},
+        ))
+
+    return docs
 
 
 LOADERS = {
@@ -105,9 +205,11 @@ LOADERS = {
 }
 
 
+# ── メイン処理 ────────────────────────────────────────────────────────────────
+
 def load_documents() -> list[Document]:
     documents = []
-    for path in DOCS_DIR.iterdir():
+    for path in sorted(DOCS_DIR.iterdir()):
         ext = path.suffix.lower()
         loader = LOADERS.get(ext)
         if loader is None:
@@ -115,30 +217,46 @@ def load_documents() -> list[Document]:
             continue
         print(f"  読み込み中: {path.name}")
         try:
-            text = loader(str(path))
-            if text.strip():
-                documents.append(Document(
-                    page_content=text,
-                    metadata={"source": path.name, "file_type": ext.lstrip(".")}
-                ))
+            docs = loader(path)
+            documents.extend(docs)
         except Exception as e:
             print(f"  エラー ({path.name}): {e}")
     return documents
 
 
 def main():
-    print("=== ドキュメント読み込み開始 ===")
-    raw_docs = load_documents()
-    print(f"読み込み完了: {len(raw_docs)} ファイル\n")
+    parser = argparse.ArgumentParser(description="ドキュメントをChromaDBに登録する")
+    parser.add_argument(
+        "--collection",
+        default=DEFAULT_COLLECTION,
+        help=f"ChromaDBのコレクション名 (default: {DEFAULT_COLLECTION})",
+    )
+    args = parser.parse_args()
 
-    print("=== テキスト分割 ===")
+    print(f"=== ドキュメント読み込み開始 ===")
+    raw_docs = load_documents()
+    print(f"読み込み完了: {len(raw_docs)} Documents\n")
+
+    # テーブルDocumentはsplitter対象外、テキストDocumentのみ分割
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=500,
-        chunk_overlap=50,
+        chunk_overlap=100,
         separators=["\n\n", "\n", "。", "、", " ", ""],
     )
-    chunks = splitter.split_documents(raw_docs)
-    print(f"チャンク数: {len(chunks)}\n")
+
+    chunks = []
+    table_count = 0
+    for doc in raw_docs:
+        if doc.metadata.get("type") == "table":
+            chunks.append(doc)  # テーブルは分割しない
+            table_count += 1
+        else:
+            chunks.extend(splitter.split_documents([doc]))
+
+    print(f"=== テキスト分割 ===")
+    print(f"  テーブルDocument（分割なし）: {table_count}件")
+    print(f"  テキストチャンク（分割後）: {len(chunks) - table_count}件")
+    print(f"  合計: {len(chunks)}件\n")
 
     print(f"=== 埋め込みモデル読み込み: {EMBED_MODEL} ===")
     embeddings = HuggingFaceEmbeddings(
@@ -147,12 +265,12 @@ def main():
         encode_kwargs={"normalize_embeddings": True},
     )
 
-    print(f"=== ChromaDB に保存: {CHROMA_DIR} ===")
+    print(f"=== ChromaDB に保存: {CHROMA_DIR} / collection={args.collection} ===")
     vectorstore = Chroma.from_documents(
         documents=chunks,
         embedding=embeddings,
         persist_directory=str(CHROMA_DIR),
-        collection_name="dify_rag",
+        collection_name=args.collection,
     )
     print(f"保存完了: {vectorstore._collection.count()} チャンクを登録しました。")
 

@@ -5,8 +5,9 @@ Scans docs/ for PDF/PPTX/DOCX/XLSX files and extracts all embedded images.
 Each image is described by Claude Vision and added to ChromaDB as a text chunk.
 
 Usage:
-  python ingest_vision.py           # process all files
-  python ingest_vision.py --force   # re-index even if already indexed
+  python ingest_vision.py                              # process all files
+  python ingest_vision.py --force                      # re-index even if already indexed
+  python ingest_vision.py --collection dify_rag_v3     # 指定コレクションに登録
 
 # ── 既知の制限事項（v2.1時点） ──────────────────────────────────────────────
 #
@@ -157,7 +158,7 @@ def describe_image(client: anthropic.Anthropic, image_bytes: bytes,
 
 # ─── ChromaDB ────────────────────────────────────────────────────────────────
 
-def get_vectorstore() -> Chroma:
+def get_vectorstore(collection: str) -> Chroma:
     embeddings = HuggingFaceEmbeddings(
         model_name=EMBED_MODEL,
         model_kwargs={"device": "cpu"},
@@ -166,7 +167,7 @@ def get_vectorstore() -> Chroma:
     return Chroma(
         persist_directory=str(CHROMA_DIR),
         embedding_function=embeddings,
-        collection_name="dify_rag",
+        collection_name=collection,
     )
 
 
@@ -185,13 +186,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true",
                         help="Re-index even if already indexed")
+    parser.add_argument("--collection", default="dify_rag",
+                        help="ChromaDBのコレクション名 (default: dify_rag)")
     args = parser.parse_args()
 
     if not ANTHROPIC_API_KEY:
         raise SystemExit("Error: ANTHROPIC_API_KEY not set in .env")
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    vectorstore = get_vectorstore()
+    vectorstore = get_vectorstore(args.collection)
 
     # docs/ 以下の対象ファイルをすべてスキャン
     target_extensions = {".pdf", ".pptx", ".ppt", ".docx", ".doc", ".xlsx", ".xls"}

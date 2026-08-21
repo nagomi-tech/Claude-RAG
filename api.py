@@ -43,6 +43,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 API_KEY = os.environ.get("RAG_API_KEY", "dify-rag-secret")
 CHROMA_DIR = Path(__file__).parent / "chroma_db"
 EMBED_MODEL = "intfloat/multilingual-e5-small"
+COLLECTION = os.environ.get("COLLECTION", "dify_rag")
 
 # --- アプリ初期化 ---
 app = FastAPI(title="Dify RAG API")
@@ -57,7 +58,7 @@ embeddings = HuggingFaceEmbeddings(
 vectorstore = Chroma(
     persist_directory=str(CHROMA_DIR),
     embedding_function=embeddings,
-    collection_name="dify_rag",
+    collection_name=COLLECTION,
 )
 
 
@@ -107,7 +108,7 @@ def health():
         count = len(vectorstore.get()["ids"])
     except Exception:
         count = -1
-    return {"status": "ok", "indexed_chunks": count}
+    return {"status": "ok", "indexed_chunks": count, "collection": COLLECTION}
 
 
 @app.post("/retrieval", response_model=RetrievalResponse)

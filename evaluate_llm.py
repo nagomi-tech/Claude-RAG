@@ -4,6 +4,7 @@ Reads questions from eval_qa.json, calls the RAG retrieval API + Claude Sonnet,
 and outputs results to eval_llm_result.csv.
 """
 
+import argparse
 import csv
 import json
 import os
@@ -89,6 +90,13 @@ def ask_llm(client: anthropic.Anthropic, question: str, context: str) -> str:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="LLMベースのRAG評価スクリプト")
+    parser.add_argument("--collection", default=None,
+                        help="評価対象のChromaDBコレクション名（APIサーバー側で設定）")
+    parser.add_argument("--output", default=None,
+                        help="結果CSVの出力先 (default: eval_llm_result.csv)")
+    args = parser.parse_args()
+
     if not ANTHROPIC_API_KEY:
         print("Error: ANTHROPIC_API_KEY is not set in .env", file=sys.stderr)
         sys.exit(1)
@@ -98,7 +106,8 @@ def main():
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-    output_path = Path(__file__).parent / "eval_llm_result.csv"
+    output_filename = args.output or "eval_llm_result.csv"
+    output_path = Path(__file__).parent / output_filename
     fieldnames = [
         "id",
         "question",
