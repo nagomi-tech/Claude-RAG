@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "question": "トヨタの2026年3月期において、第4四半期（1〜3月）単独の営業利益はいくらですか？",
+    "expected_answer": "5,694億円（通期実績3兆7,662億円から第3四半期累計3兆1,967億円を差し引いた値）",
+    "source": "toyota_2026_4q.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 2,
+    "question": "トヨタが3Q決算発表時に公表した通期営業利益見通しと、実際の通期実績を比較してください。差額と、前期実績からの減少率も教えてください。",
+    "expected_answer": "3Q時点の通期見通しは3兆8,000億円、実績は3兆7,662億円で338億円の未達。前期実績4兆7,955億円からは約21.5%の減少。",
+    "source": "toyota_2026_3q.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 3,
+    "question": "トヨタの2026年3月期通期のBEV（電気自動車）販売台数と、前期からの増加率を教えてください。",
+    "expected_answer": "243千台。前期の145千台から168.4%（約68%増）。",
+    "source": "toyota_2026_4q.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 4,
+    "question": "トヨタの配当推移を見ると、2023年3月期から2027年3月期予想にかけて年間配当はどう変化しましたか？4年間の増加総額と年平均増加額を教えてください。",
+    "expected_answer": "2023年3月期60円から2027年3月期予想100円へ40円増加。年平均10円の増加。",
+    "source": "toyota_2026_4q.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 5,
+    "question": "2026年7月の消費者物価指数において、エネルギー構成品目の中で前年同月比の上昇率が最も大きかった品目と数値を教えてください。",
+    "expected_answer": "灯油、前年同月比+15.7%。",
+    "source": "stat_cpi.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 6,
+    "question": "消費者物価指数の総合指数について、2024年7月から2026年7月にかけての2年間の累積上昇率を計算してください。",
+    "expected_answer": "2024年7月の総合指数97.0から2026年7月の102.0へ。累積上昇率は（102.0−97.0）÷97.0×100≈5.15%。",
+    "source": "stat_cpi.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 7,
+    "question": "2026年6月の家計調査において、消費支出の10大費目の中で実質前年同月比の減少率が最も大きかった費目と数値を教えてください。",
+    "expected_answer": "被服及び履物、実質前年同月比−19.9%。",
+    "source": "stat_kakei.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 8,
+    "question": "2026年6月の家計調査によると、勤労者世帯の実収入の名目前年同月比と、消費者物価指数（総合）で実質化した実質前年同月比をそれぞれ教えてください。",
+    "expected_answer": "名目+3.9%の増加、消費者物価指数（総合）による実質化では+2.2%の増加。",
+    "source": "stat_kakei.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 9,
+    "question": "「グラフでみる日本の統計」の国土利用の現況グラフ（平成23年）において、最も面積割合が大きい土地利用分類と2番目を、それぞれの割合とともに教えてください。",
+    "expected_answer": "1位：森林66.3%、2位：農地12.1%。",
+    "source": "stat_nihon_graph.pdf",
+    "currently_answerable": true
+  },
+  {
+    "id": 10,
+    "question": "トヨタの2026年3月期の営業収益の名目成長率から、2026年7月の消費者物価指数の前年同月比上昇率を差し引いた実質的な成長率を概算してください。",
+    "expected_answer": "営業収益は前期480,367億円から506,849億円へ名目約5.5%成長。CPI前年同月比1.9%を差し引いた実質成長率は約3.6%。",
+    "source": "toyota_2026_4q.pdf",
+    "currently_answerable": true
+  }
+]

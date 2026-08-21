@@ -166,7 +166,7 @@ def describe_image(client: anthropic.Anthropic, image_bytes: bytes,
     media_type = "image/png" if image_bytes[:4] == b"\x89PNG" else "image/jpeg"
 
     msg = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         max_tokens=2048,
         messages=[{
             "role": "user",
