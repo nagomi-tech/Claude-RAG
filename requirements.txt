@@ -2,7 +2,8 @@ fastapi
 uvicorn
 python-docx
 python-pptx
-pypdf
+pymupdf
+pdfplumber
 chromadb
 sentence-transformers
 langchain
@@ -13,4 +14,4 @@ matplotlib
 reportlab
 anthropic
 python-dotenv
-pypdfium2
+# pypdfium2  # PyMuPDFに統合されたため不要

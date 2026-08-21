@@ -51,15 +51,46 @@ ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 # ─── 画像抽出（ファイル形式別） ───────────────────────────────────────────────
 
 def pdf_images(pdf_path: Path) -> list[tuple[str, bytes]]:
-    """Render every PDF page as PNG."""
-    import pypdfium2 as pdfium
-    pdf = pdfium.PdfDocument(str(pdf_path))
+    """PDFからVision対象の画像を抽出する。
+
+    ページ種別を自動判定して処理を振り分ける:
+      - ラスタ埋め込み画像あり → XObjectを直接抽出してVisionへ
+      - テキスト少（<100文字）かつラスタなし → ページ全体をレンダリングしてVisionへ
+        （ベクターグラフ・スキャンPDF対応）
+      - テキスト十分 → Vision不要（ingest.pyのテキスト抽出でカバー）
+    """
+    import pymupdf
+
+    TEXT_THRESHOLD = 100  # これ未満の文字数を「テキスト不十分」と判断
+    doc = pymupdf.open(str(pdf_path))
     results = []
-    for i in range(len(pdf)):
-        bitmap = pdf[i].render(scale=2.0)
-        buf = io.BytesIO()
-        bitmap.to_pil().save(buf, format="PNG")
-        results.append((f"p.{i + 1}", buf.getvalue()))
+
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+        text = page.get_text("text").strip()
+
+        # ── ラスタ埋め込み画像を抽出 ──
+        image_list = page.get_images(full=True)
+        raster_found = False
+        for img_idx, img_info in enumerate(image_list):
+            xref = img_info[0]
+            try:
+                base_img = doc.extract_image(xref)
+                img_bytes = base_img["image"]
+                results.append((f"p.{page_num + 1}-図{img_idx + 1}", img_bytes))
+                raster_found = True
+            except Exception:
+                pass
+
+        # ── テキスト不十分 + ラスタなし → ページレンダリング ──
+        # ベクターグラフ（Word/PowerPointのネイティブグラフ→PDF出力）や
+        # スキャンPDFに対応するフォールバック
+        if len(text) < TEXT_THRESHOLD and not raster_found:
+            mat = pymupdf.Matrix(2.0, 2.0)
+            pix = page.get_pixmap(matrix=mat)
+            img_bytes = pix.tobytes("png")
+            results.append((f"p.{page_num + 1}-レンダリング", img_bytes))
+
     return results
 
 

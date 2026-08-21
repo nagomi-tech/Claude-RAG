@@ -18,7 +18,7 @@ from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 
-from pypdf import PdfReader
+import pymupdf
 from docx import Document as DocxDocument
 from pptx import Presentation
 import openpyxl
@@ -49,16 +49,47 @@ def rows_to_markdown(rows: list[list[str]]) -> str:
 # ── ローダー（各形式 → list[Document]） ──────────────────────────────────────
 
 def load_pdf(path: Path) -> list[Document]:
-    """PDFをページ単位でDocument化する。"""
-    reader = PdfReader(str(path))
+    """PDFをページ単位でDocument化する。
+    PyMuPDFでテキスト抽出 + テーブル検出を行い、
+    テーブルはMarkdown形式の独立Documentとして登録する。
+    """
+    doc = pymupdf.open(str(path))
     docs = []
-    for i, page in enumerate(reader.pages):
-        text = page.extract_text() or ""
-        if text.strip():
+
+    for page_num in range(len(doc)):
+        page = doc[page_num]
+
+        # ── テーブル検出（Markdown Document として独立登録） ──
+        try:
+            for i, table in enumerate(page.find_tables().tables):
+                rows = table.extract()  # list[list[str|None]]
+                if rows:
+                    rows_clean = [
+                        [str(c) if c is not None else "" for c in row]
+                        for row in rows
+                    ]
+                    md = rows_to_markdown(rows_clean)
+                    if md:
+                        docs.append(Document(
+                            page_content=f"[{path.name} p.{page_num + 1}]\n{md}",
+                            metadata={
+                                "source": path.name,
+                                "file_type": "pdf",
+                                "page": page_num + 1,
+                                "type": "table",
+                            },
+                        ))
+        except Exception:
+            pass
+
+        # ── テキスト抽出（タグ付きPDFは読み順が正確） ──
+        text = page.get_text("text").strip()
+        if text:
             docs.append(Document(
                 page_content=text,
-                metadata={"source": path.name, "file_type": "pdf", "page": i + 1},
+                metadata={"source": path.name, "file_type": "pdf", "page": page_num + 1},
             ))
+
     return docs
 
 
