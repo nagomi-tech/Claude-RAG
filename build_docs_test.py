@@ -142,11 +142,21 @@ def build_vision_chunks(client: anthropic.Anthropic) -> list[Document]:
             break
         time.sleep(30)
 
-    # ── 結果収集 ─────────────────────────────────────────────────────────────
+    # ── 結果収集（トークン集計） ─────────────────────────────────────────────
     result_map: dict = {}
+    total_input_tokens = 0
+    total_output_tokens = 0
     for result in client.beta.messages.batches.results(batch.id):
         if result.result.type == "succeeded":
-            result_map[result.custom_id] = result.result.message.content[0].text
+            # ThinkingBlockが先頭に来る場合があるため、TextBlockを明示的に探す
+            text_block = next(
+                (b for b in result.result.message.content if b.type == "text"), None
+            )
+            if text_block:
+                result_map[result.custom_id] = text_block.text
+            usage = result.result.message.usage
+            total_input_tokens += usage.input_tokens
+            total_output_tokens += usage.output_tokens
 
     # ── Document リスト構築（順序保持） ──────────────────────────────────────
     vision_docs = []
@@ -165,6 +175,21 @@ def build_vision_chunks(client: anthropic.Anthropic) -> list[Document]:
             print(f"    {path.name} p.{i + 1}/{total}: {len(text)}文字")
         else:
             print(f"    {path.name} p.{i + 1}/{total}: [エラー]")
+
+    # ── コスト試算（claude-sonnet-5 概算レート） ─────────────────────────────
+    # Sonnet 標準: Input $3/MTok, Output $15/MTok
+    # Batch API:   Input $1.5/MTok, Output $7.5/MTok（50%割引）
+    INPUT_RATE = 3.0
+    OUTPUT_RATE = 15.0
+    standard_cost = (total_input_tokens / 1_000_000 * INPUT_RATE
+                     + total_output_tokens / 1_000_000 * OUTPUT_RATE)
+    batch_cost = standard_cost * 0.5
+    print(f"\n  === Vision コスト試算 ===")
+    print(f"  入力トークン合計 : {total_input_tokens:>10,}")
+    print(f"  出力トークン合計 : {total_output_tokens:>10,}")
+    print(f"  標準API想定コスト: ${standard_cost:.4f}")
+    print(f"  Batch API 実コスト: ${batch_cost:.4f}  (50%割引)")
+    print(f"  削減額           : ${standard_cost - batch_cost:.4f}")
 
     return vision_docs
 

@@ -73,7 +73,11 @@ def poll_batch(client: anthropic.Anthropic, batch_id: str) -> dict[str, str]:
     results = {}
     for result in client.beta.messages.batches.results(batch_id):
         if result.result.type == "succeeded":
-            results[result.custom_id] = result.result.message.content[0].text
+            # ThinkingBlockが先頭に来る場合があるため、TextBlockを明示的に探す
+            text_block = next(
+                (b for b in result.result.message.content if b.type == "text"), None
+            )
+            results[result.custom_id] = text_block.text if text_block else ""
         else:
             results[result.custom_id] = f"[BATCH ERROR] {result.result.error}"
     return results
